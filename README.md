@@ -14,12 +14,12 @@ It provides a clear, intuitive interface to plan, prioritize, and track daily ac
 Many students struggle to stay organized and productive due to poor task planning and lack of structure in managing their daily activities.  
 This often leads to confusion, missed deadlines, and reduced focus.  
 
-**Haraka App** addresses this problem by providing a simple and intuitive platform that allows users to plan, prioritize, and track their tasks effectively — helping them stay focused and improve productivity.
+**Haraka App** addresses this problem by providing a simple and intuitive platform that allows users to plan, prioritize, and track their tasks effectively helping them stay focused and improve productivity.
 
 ---
 
 ## 🎯 **Target Users**
-🎓 **University Students** — individuals managing multiple academic, personal, and extracurricular tasks who need a reliable tool to stay on track.
+🎓 **University Students**  individuals managing multiple academic, personal, and extracurricular tasks who need a reliable tool to stay on track.
 
 ---
 
