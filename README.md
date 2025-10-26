@@ -41,3 +41,10 @@ This often leads to confusion, missed deadlines, and reduced focus.
 | 🎨 **Front-end** | React, TypeScript |
 | 🧠 **Back-end** | MongoDB |
 
+## 👥 **Group Members**
+
+| Name | Role |
+|------|------|
+| 🧑‍💼 **Divine Nubuhoro** | Team Lead |
+| 👩‍💻 **Joyce Moses Brown** | Backend Developer |
+| 🧑‍🔧 **Mugisha Gasheja** | DevOps Engineer |
