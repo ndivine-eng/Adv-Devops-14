@@ -48,3 +48,4 @@ This often leads to confusion, missed deadlines, and reduced focus.
 | 🧑‍💼 **Divine Nubuhoro** | Team Lead, Frontend Developer |
 | 👩‍💻 **Joyce Moses Brown** | Backend Developer |
 | 🧑‍🔧 **Mugisha Gasheja** | DevOps Engineer |
+| 🧑‍🔧 **Erjok Mach** | Frontend Developer |
