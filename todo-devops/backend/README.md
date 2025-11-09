@@ -2,7 +2,7 @@
 
 ## Project Description project modifucation
 
-Pinnacle Planner is a minimalist web application designed to help users track their daily tasks efficiently. It provides a straightforward interface to add, manage, and mark tasks as complete, ensuring a clear overview of personal productivity.
+Pinnacle Planner especially students  is a minimalist web application designed to help users track their daily tasks efficiently. It provides a straightforward interface to add, manage, and mark tasks as complete, ensuring a clear overview of personal productivity.
 
 ### Core Features
 
@@ -32,3 +32,6 @@ Pinnacle Planner is a minimalist web application designed to help users track th
    git clone https://github.com/mbienaimee/todo-devops.git
    cd todo-devops
    ```
+
+# Minor update
+Added a comment for CI run 1

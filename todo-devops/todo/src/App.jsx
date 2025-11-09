@@ -6,7 +6,8 @@ function App() {
   return (
     <div>
       {/* <TaskList/> */}
-      <TodoApp />
+       {/* TaskList component is now integrated within TodoApp  */}
+      <TodoApp />        
     </div>
   );
 }
