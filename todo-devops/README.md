@@ -1,276 +1,129 @@
-# To-Do DevOps Application in bsee 
+# 📝 To-Do DevOps Application
 
-## This repository contains a full-stack To-Do application, designed to demonstrate containerization, Infrastructure as Code (IaC) with Terraform, and deployment to Azure Container .
+This repository contains a simple **To-Do application** that integrates all requirements of the **Haraka project**, focusing on **containerization** and **continuous integration (CI)** using **Docker** and **GitHub Actions**.
 
-## Project Structure
+---
 
+## 🚀 Project Overview
+
+This project builds on the Formative 1 repository by adding:
+- **Containerization** using Docker and Docker Compose  
+- **Continuous Integration (CI)** using GitHub Actions  
+
+### Why This Matters
+Containerization ensures that the application runs consistently across different environments. CI automates testing and validation, helping catch bugs early and ensuring code quality before deployment.
+
+---
+
+## 🧱 Project Structure
+
+```
 .
-├── backend/ # Node.js backend application app demoo 
-├── todo/ # React frontend application (named 'todo' in your Dockerfile)
-├── terraform/ # Terraform configurations for Azure infrastructure
-│ └── azure/
-│ └── main.tf
-├── compose.yaml # Docker Compose for local development environment
-├── Dockerfile # Multi-stage Dockerfile for building frontend and backend images
-└── README.md # This file
-└── phase.md # Assignment submission details (to be created/updated)
-
-## Getting Started
-
-To get this application up and running, you have two main options:
-
-1.  **Local Development:** Run the application on your local machine using Docker Compose.
-2.  **Cloud Deployment:** Deploy the application to Azure Container Apps.
-
----
-
-## Local Development Setup (Docker Compose)
-
-This section guides you on how to run the application locally using Docker Compose.
-
-### Prerequisites
-
-- [Docker Desktop](https://www.docker.com/products/docker-desktop) installed and running.
-
-### Steps
-
-1.  **Clone the Repository:**
-
-    ```bash
-    git clone "your repo"
-    cd todo-devops
-    ```
-
-2.  **Build and Run with Docker Compose:**
-    Navigate to the root of the project where `compose.yaml` is located.
-
-    ```bash
-    docker-compose -f compose.yaml up --build
-    ```
-
-    This command will:
-
-    - Build the Docker images for both your frontend and backend services.
-    - Start the backend service (Node.js).
-    - Start the frontend service (React app served by Nginx).
-
-3.  **Access the Application:**
-    Once the services are up and running, open your web browser and navigate to:
-    `http://localhost`
-
-    You should see the To-Do application.
-
-4.  **Stop the Application:**
-    To stop the running services, press `Ctrl+C` in your terminal. To stop and remove the containers, networks, and volumes:
-    ```bash
-    docker-compose -f compose.yaml down
-    ```
-
----
-
-## Cloud Deployment Setup (Azure Container Apps)
-
-This section details how to deploy the application to Azure using Terraform for infrastructure and Azure CLI for deployment.
-
-### Prerequisites
-
-- [Azure Account](https://azure.microsoft.com/free/)
-- [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) installed and logged in (`az login`).
-- [Terraform](https://www.terraform.io/downloads.html) installed.
-- [Docker Desktop](https://www.docker.com/products/docker-desktop) installed and running.
-
-### Deployment Steps
-
-#### 1. Login to Azure and Azure Container Registry (ACR)
-
-1.  **Log in to Azure CLI:**
-
-    ```bash
-    az login
-    ```
-
-    Follow the browser prompts to log in.
-
-2.  **Set your Azure Subscription (if you have multiple):**
-
-    ```bash
-    az account set --subscription "YOUR_AZURE_SUBSCRIPTION_ID_HERE"
-    ```
-
-    (Replace `YOUR_AZURE_SUBSCRIPTION_ID_HERE` with your actual subscription ID).
-
-3.  **Log in to your Azure Container Registry (ACR):**
-    This command authenticates your local Docker client with your ACR. Replace `YOUR_ACR_NAME_HERE` with your actual ACR name (e.g., `tododevopsregistry`).
-    ```bash
-    az acr login --name YOUR_ACR_NAME_HERE
-    ```
-    You should see "Login Succeeded".
-
-#### 2. Provision Azure Infrastructure with Terraform
-
-1.  **Navigate to your Terraform directory:**
-
-    ```bash
-    cd terraform/azure
-    ```
-
-2.  **Initialize Terraform:**
-
-    ```bash
-    terraform init
-    ```
-
-3.  \*\*Review the Plan (Optional but Recommended):
-    This shows what Terraform will create.
-
-    ```bash
-    terraform plan
-    ```
-
-4.  **Apply the Terraform Configuration:**
-    This will create all the necessary Azure resources.
-    ```bash
-    terraform apply
-    ```
-    Type `yes` when prompted.
-    **IMPORTANT:** At the end of `terraform apply`, Terraform will output several values, including sensitive data like `cosmosdb_connection_string`, `acr_admin_username`, and `acr_admin_password`. **Copy these values securely; you will need them for the deployment steps and should treat them as secrets. Do NOT commit them to Git.**
-
-#### 3. Build and Push Docker Images to ACR
-
-1.  **Navigate back to your project root directory:**
-
-    ```bash
-    cd ../.. # This assumes you are in terraform/azure
-    ```
-
-2.  **Build the Backend Docker Image:**
-    This uses the `backend-final` stage of your multi-stage `Dockerfile`. Replace `YOUR_ACR_NAME_HERE` with your actual ACR name.
-
-    ```powershell
-    docker build -t YOUR_ACR_NAME_HERE.azurecr.io/mbienaimee/todo-backend:latest --target backend-final .
-    ```
-
-3.  **Push the Backend Docker Image to ACR:**
-    Replace `YOUR_ACR_NAME_HERE` with your actual ACR name.
-
-    ```powershell
-    docker push YOUR_ACR_NAME_HERE.azurecr.io/mbienaimee/todo-backend:latest
-    ```
-
-4.  **Build the Frontend Docker Image:**
-    This uses the `frontend-nginx` stage of your multi-stage `Dockerfile`. Replace `YOUR_ACR_NAME_HERE` with your actual ACR name.
-
-    ```powershell
-    docker build -t YOUR_ACR_NAME_HERE.azurecr.io/mbienaimee/todo-frontend:latest --target frontend-nginx .
-    ```
-
-5.  **Push the Frontend Docker Image to ACR:**
-    Replace `YOUR_ACR_NAME_HERE` with your actual ACR name.
-    ```powershell
-    docker push YOUR_ACR_NAME_HERE.azurecr.io/mbienaimee/todo-frontend:latest
-    ```
-
-#### 4. Deploy Container Apps to Azure
-
-Now you will deploy your Docker images as Azure Container Apps. Ensure you are still in your **project root directory**.
-
-1.  **Define Cosmos DB Connection String Variable (PowerShell):**
-    First, set the Cosmos DB connection string (copied securely from `terraform apply` output) into a PowerShell variable.
-
-    ```powershell
-    $cosmosDbConnectionString = "YOUR_COSMOSDB_CONNECTION_STRING_FROM_TERRAFORM_OUTPUT_HERE"
-    ```
-
-2.  **Create the Backend Container App:**
-    This command deploys your backend and provides it with the Cosmos DB connection string.
-    **Ensure you replace `YOUR_ACR_ADMIN_PASSWORD_FROM_TERRAFORM_HERE` with the actual password you copied securely, and `YOUR_ACR_NAME_HERE` with your ACR name.**
-
-    ```powershell
-    az containerapp create `
-      --name todo-backend-app `
-      --resource-group todo-devops-rg `
-      --environment todo-devops-aca-env `
-      --image YOUR_ACR_NAME_HERE.azurecr.io/mbienaimee/todo-backend:latest `
-      --target-port 3001 `
-      --ingress external `
-      --query properties.configuration.ingress.fqdn `
-      --registry-server YOUR_ACR_NAME_HERE.azurecr.io `
-      --registry-username YOUR_ACR_NAME_HERE `
-      --registry-password "YOUR_ACR_ADMIN_PASSWORD_FROM_TERRAFORM_HERE" `
-      --env-vars COSMOSDB_CONNECTION_STRING=$cosmosDbConnectionString
-    ```
-
-    **IMPORTANT:** This command will output the **URL (FQDN)** of your backend application. **Copy this URL**, you'll need it for the frontend!
-
-3.  **Create the Frontend Container App:**
-    This command deploys your frontend and provides it with the URL of your backend.
-    **Replace `YOUR_BACKEND_APP_FQDN_HERE` with the URL you copied from the previous step.**
-    **Ensure you replace `YOUR_ACR_ADMIN_PASSWORD_FROM_TERRAFORM_HERE` with the actual password again, and `YOUR_ACR_NAME_HERE` with your ACR name.**
-
-    ```powershell
-    az containerapp create `
-      --name todo-frontend-app `
-      --resource-group todo-devops-rg `
-      --environment todo-devops-aca-env `
-      --image YOUR_ACR_NAME_HERE.azurecr.io/mbienaimee/todo-frontend:latest `
-      --target-port 80 `
-      --ingress external `
-      --query properties.configuration.ingress.fqdn `
-      --registry-server YOUR_ACR_NAME_HERE.azurecr.io `
-      --registry-username YOUR_ACR_NAME_HERE `
-      --registry-password "YOUR_ACR_ADMIN_PASSWORD_FROM_TERRAFORM_HERE" `
-      --env-vars REACT_APP_BACKEND_URL="https://YOUR_BACKEND_APP_FQDN_HERE"
-    ```
-
-    **SUCCESS!** This command will output the **live public URL of your frontend application**.
-
-### 5. Access Your Deployed Application
-
-Open your web browser and navigate to the **Frontend App URL** that was outputted by the last `az containerapp create` command:
-
-[link text](https://github.com/mbienaimee/todo-devops/pull/27)
-
----
-
-## Cleaning Up Azure Resources
-
-To avoid incurring continuous costs, you can destroy all the Azure resources provisioned by Terraform.
-
-1.  **Navigate to your Terraform directory:**
-
-    ```bash
-    cd terraform/azure
-    ```
-
-2.  **Destroy the resources:**
-    ```bash
-    terraform destroy
-    ```
-    Type `yes` when prompted. This will remove all resources created by Terraform in your Azure subscription.
-
----
-
-## Assignment Submission Details (for `phase.md`)
-
-This section outlines the content for your `phase.md` file, as per the assignment instructions. You should create a separate file named `phase.md` in your repository root with this content.
-
-```markdown
-# Phase 2: IaC, Containerization & Manual Deployment Submission
-
-## Live Public URL
-
-The live URL for the manually deployed application:
-
-[link text](https://todo-frontend-app.greenforest-62294cdc.southafricanorth.azurecontainerapps.io/)
-
-## Screenshots of Successfully Provisioned Resources
-
-(Insert screenshots here. You can take these from the Azure Portal, showing your resource group and the list of resources within it.)
-
-## Link to Peer Review Pull Request
-
-[link text](https://github.com/mbienaimee/todo-devops/pull/27)
+├── todoapp/              # Main To-Do Application source code
+├── Dockerfile            # Docker configuration for containerization
+├── docker-compose.yml    # Compose file for local development
+├── .dockerignore         # Excludes unnecessary files from the build context
+├── .github/
+│   └── workflows/
+│       └── ci.yml        # CI pipeline configuration
+└── README.md             # Project documentation
 ```
 
-## Link to Demo video
-[link text](https://www.loom.com/share/ac7c33781d98414380a2e617ae0acbd4?sid=e2051643-159f-46cf-ab83-db94050700fc)
+---
+
+## ⚙️ Setup Instructions
+
+### 🧩 Prerequisites
+Make sure you have these installed:  
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)  
+- [Git](https://git-scm.com/)  
+- (Optional) Node.js or Python depending on your app’s stack  
+
+---
+
+## 🐳 Run the Application with Docker Compose
+
+1. **Clone the Repository**
+   ```bash
+   git clone <your-repository-url>
+   cd <repo-name>
+   ```
+
+2. **Build and Run the Containers**
+   ```bash
+   docker-compose up --build
+   ```
+
+   This will:
+   - Build the Docker image using your `Dockerfile`
+   - Start the application service defined in `docker-compose.yml`
+
+3. **Access the Application**
+   Once running, open your browser and visit:  
+   👉 [http://localhost:5000](http://localhost:5000) *(or your app’s default port)*  
+
+4. **Stop the Application**
+   Press `Ctrl + C` in the terminal, then run:  
+   ```bash
+   docker-compose down
+   ```
+
+---
+
+## 🧰 Continuous Integration (CI)
+
+This project uses **GitHub Actions** to automatically build, lint, test, and validate the Docker image on each push or pull request.
+
+### 📄 CI Workflow Summary
+The CI pipeline:
+- Triggers on:
+  - Pushes to any branch (except `main`)
+  - Pull requests targeting `main`
+- Steps:
+  - Checkout repository
+  - Set up the environment
+  - Install dependencies
+  - Run linting and tests
+  - Build the Docker image
+
+💡 **CI will fail automatically** if linting, tests, or Docker builds fail — ensuring high code quality.
+
+---
+
+## 🧑‍💻 Team Collaboration & Integration
+
+- The repository includes branch protection rules requiring CI checks to pass before merging.  
+- Team members collaborate through branches and pull requests.  
+- Code reviews and discussions take place in PRs to ensure shared learning and accountability.  
+
+---
+
+## 🧩 Assignment Progress Report
+
+**Main Challenges:**  
+Learning how to correctly structure Dockerfiles and configure CI workflows was challenging, especially ensuring builds passed in GitHub Actions.  
+
+**Key Learnings:**  
+- Understood how Docker ensures consistent environments.  
+- Learned how CI pipelines automate code quality checks and testing.  
+- Gained confidence in setting up `ci.yml` and debugging failed workflows.  
+
+**Changes from Formative 1:**  
+- Added Dockerfile, docker-compose.yml, and .dockerignore files.  
+- Integrated a GitHub Actions CI pipeline for automated testing and builds.  
+- Improved collaboration through PR reviews and CI enforcement.  
+
+---
+
+## 📎 Repository Submission
+
+- **GitHub Repository URL:** `<Insert your repo URL here>`  
+- **Commit SHA / Tag for F2 Submission:** `milestone-1-submission`  
+- **Number of Successful CI Runs:** 3+  
+- **At least one failed run (then fixed):** ✅  
+- **At least one reviewed PR:** ✅  
+
+---
+
+### 🧠 AI & Collaboration Policy Reminder
+You are allowed to use AI tools (e.g., GitHub Copilot, ChatGPT) for application code, but **all DevOps configuration files (Dockerfile, docker-compose.yml, ci.yml)** must be **written by you** as per assignment policy.
