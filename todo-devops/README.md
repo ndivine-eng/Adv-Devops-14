@@ -1,10 +1,10 @@
-# 📝 To-Do DevOps Application
+#  To-Do DevOps Application
 
 This repository contains a simple **To-Do application** that integrates all requirements of the **Haraka project**, focusing on **containerization** and **continuous integration (CI)** using **Docker** and **GitHub Actions**.
 
 ---
 
-## 🚀 Project Overview
+##  Project Overview
 
 This project builds on the Formative 1 repository by adding:
 - **Containerization** using Docker and Docker Compose  
@@ -15,7 +15,7 @@ Containerization ensures that the application runs consistently across different
 
 ---
 
-## 🧱 Project Structure
+##  Project Structure
 
 ```
 .
@@ -31,9 +31,9 @@ Containerization ensures that the application runs consistently across different
 
 ---
 
-## ⚙️ Setup Instructions
+##  Setup Instructions
 
-### 🧩 Prerequisites
+###  Prerequisites
 Make sure you have these installed:  
 - [Docker Desktop](https://www.docker.com/products/docker-desktop)  
 - [Git](https://git-scm.com/)  
@@ -41,7 +41,7 @@ Make sure you have these installed:
 
 ---
 
-## 🐳 Run the Application with Docker Compose
+##  Run the Application with Docker Compose
 
 1. **Clone the Repository**
    ```bash
@@ -70,11 +70,11 @@ Make sure you have these installed:
 
 ---
 
-## 🧰 Continuous Integration (CI)
+##  Continuous Integration (CI)
 
 This project uses **GitHub Actions** to automatically build, lint, test, and validate the Docker image on each push or pull request.
 
-### 📄 CI Workflow Summary
+###  CI Workflow Summary
 The CI pipeline:
 - Triggers on:
   - Pushes to any branch (except `main`)
@@ -86,11 +86,11 @@ The CI pipeline:
   - Run linting and tests
   - Build the Docker image
 
-💡 **CI will fail automatically** if linting, tests, or Docker builds fail — ensuring high code quality.
+ **CI will fail automatically** if linting, tests, or Docker builds fail — ensuring high code quality.
 
 ---
 
-## 🧑‍💻 Team Collaboration & Integration
+## 🧑 Team Collaboration & Integration
 
 - The repository includes branch protection rules requiring CI checks to pass before merging.  
 - Team members collaborate through branches and pull requests.  
