@@ -13,3 +13,25 @@
 **/override.tf.json
 **/*_override.tf
 **/*_override.tf.json
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.backup
+.terraform.lock.hcl
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# Node modules (if not already excluded)
+node_modules/
+
+# OS files
+.DS_Store
