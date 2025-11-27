@@ -16,7 +16,7 @@ terraform {
 provider "azurerm" {
   features {}
   subscription_id = var.azure_subscription_id
-  
+
   # This flag prevents Terraform from trying to automatically register all resource providers,
   # which resolves the "Cannot register providers" error.
   skip_provider_registration = true

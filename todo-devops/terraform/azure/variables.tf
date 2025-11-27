@@ -1,18 +1,46 @@
-# terraform/azure/variables.tf
-
-variable "environment" {
-  description = "The environment name for the resources (e.g., dev, staging, prod)."
+variable "azure_subscription_id" {
+  description = "Azure subscription ID"
   type        = string
-  default     = "staging"
+}
+
+variable "resource_group_name" {
+  description = "Name of the resource group"
+  type        = string
+  default     = "rg-todo-devops"
 }
 
 variable "location" {
-  description = "The Azure region to deploy the resources."
+  description = "Azure region"
   type        = string
-  default     = "SouthAfricaNorth"
+  default     = "West US 2"
 }
 
-variable "azure_subscription_id" {
-  description = "The Azure subscription ID to deploy to."
+variable "environment" {
+  description = "Environment name"
   type        = string
+  default     = "prod"
+}
+
+variable "project_name" {
+  description = "Project name"
+  type        = string
+  default     = "todo-devops"
+}
+
+variable "admin_username" {
+  description = "Admin username for VMs"
+  type        = string
+  default     = "azureuser"
+}
+
+variable "admin_password" {
+  description = "Admin password for VMs"
+  type        = string
+  sensitive   = true
+}
+
+variable "db_password" {
+  description = "Password for the MySQL database"
+  type        = string
+  sensitive   = true
 }

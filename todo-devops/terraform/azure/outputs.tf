@@ -1,12 +1,19 @@
-# terraform/azure/outputs.tf
+output "bastion_public_ip" {
+  description = "Public IP address of the bastion host"
+  value       = azurerm_public_ip.bastion.ip_address
+}
 
-# Defines the outputs to get the dynamic URLs.
-#output "web_app_url" {
-#  description = "The URL of the deployed App Service for the current environment."
-#  value       = azurerm_linux_web_app.app_service.default_hostname
-#}
+output "app_public_ip" {
+  description = "Public IP address of the application VM"
+  value       = azurerm_public_ip.app.ip_address
+}
 
-#output "resource_group_name" {
- # description = "The name of the resource group."
-  #value       = azurerm_resource_group.rg.name
-#}
+output "app_private_ip" {
+  description = "Private IP address of the application VM"
+  value       = azurerm_network_interface.app.private_ip_address
+}
+
+output "resource_group_name" {
+  description = "Name of the resource group"
+  value       = azurerm_resource_group.main.name
+}
