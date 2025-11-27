@@ -1,7 +1,15 @@
-<<<<<<< HEAD
-.terraform/
-=======
-<path/to/the/large/file>
-# Ignore Terraform provider binaries
-.terraform/
->>>>>>> 8d12ed5e731804f7e57948e2757624ae8b341bcd
+
+# Terraform
+**/.terraform/*
+**/.terraform.lock.hcl
+**/terraform.tfstate
+**/terraform.tfstate.backup
+**/.terraform.tfstate.lock.info
+**/terraform.tfvars
+**/*.tfplan
+**/*.tfstate
+**/crash.log
+**/override.tf
+**/override.tf.json
+**/*_override.tf
+**/*_override.tf.json

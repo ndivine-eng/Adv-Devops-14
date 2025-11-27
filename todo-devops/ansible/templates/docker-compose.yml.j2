@@ -1,0 +1,52 @@
+# Create ansible/templates/docker-compose.yml.j2
+cat > ansible/templates/docker-compose.yml.j2 << 'EOF'
+version: '3.8'
+
+services:
+  todo-app:
+    image: {{ acr_login_server | default('todo-app') }}/todo-app:{{ image_tag | default('latest') }}
+    container_name: todo-devops-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST={{ mysql_fqdn | default('localhost') }}
+      - DB_USER=mysqladmin
+      - DB_PASSWORD={{ db_password }}
+      - DB_NAME={{ database_name | default('todo_devops_db') }}
+      - PORT=3000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      - mysql
+    networks:
+      - todo-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: todo-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD={{ db_password }}
+      - MYSQL_DATABASE={{ database_name | default('todo_devops_db') }}
+      - MYSQL_USER=appuser
+      - MYSQL_PASSWORD={{ db_password }}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - todo-network
+
+volumes:
+  mysql_data:
+
+networks:
+  todo-network:
+    driver: bridge
+EOF

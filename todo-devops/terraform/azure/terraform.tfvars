@@ -1,0 +1,7 @@
+location = "centralus"
+admin_username = "erjok2020"
+admin_password = "SecurePassword123!"
+db_password = "SecureDBPassword123!"
+resource_group_name = "rg-todo-devops"
+project_name = "todo-devops"
+environment = "prod"
