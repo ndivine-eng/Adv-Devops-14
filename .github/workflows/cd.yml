@@ -1,0 +1,144 @@
+name: CD Pipeline - Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      deploy_infrastructure:
+        description: 'Deploy infrastructure (will incur costs)'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  AZURE_RESOURCE_GROUP: 'rg-todo-devops'
+  NODE_VERSION: '18'
+  TERRAFORM_VERSION: '1.6.0'
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    environment: production
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests one more time
+        run: npm test
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: terraform/azure
+        env:
+          TF_VAR_azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          TF_VAR_admin_password: ${{ secrets.ADMIN_PASSWORD }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+
+      - name: Terraform Plan
+        run: terraform plan -var-file="terraform.tfvars" -out=tfplan
+        working-directory: terraform/azure
+        env:
+          TF_VAR_azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          TF_VAR_admin_password: ${{ secrets.ADMIN_PASSWORD }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+
+      - name: Terraform Apply (Infrastructure)
+        if: github.event.inputs.deploy_infrastructure == 'true' || github.event_name == 'push'
+        run: terraform apply -auto-approve tfplan
+        working-directory: terraform/azure
+
+      - name: Get Infrastructure Outputs
+        id: terraform-output
+        run: |
+          echo "acr_name=$(terraform output -raw container_registry_name)" >> $GITHUB_OUTPUT
+          echo "acr_login_server=$(terraform output -raw container_registry_login_server)" >> $GITHUB_OUTPUT
+          echo "app_public_ip=$(terraform output -raw app_public_ip)" >> $GITHUB_OUTPUT
+          echo "bastion_public_ip=$(terraform output -raw bastion_public_ip)" >> $GITHUB_OUTPUT
+        working-directory: terraform/azure
+
+      - name: Build and Push to ACR
+        run: |
+          az acr build --registry ${{ steps.terraform-output.outputs.acr_name }} \
+            --image todo-app:${{ github.sha }} \
+            --image todo-app:latest .
+
+      - name: Setup Python for Ansible
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Ansible
+        run: |
+          pip install ansible docker
+
+      - name: Wait for VMs to be ready
+        run: |
+          echo "Waiting for VMs to boot and be accessible..."
+          sleep 180
+
+      - name: Update Ansible Inventory
+        run: |
+          sed -i "s/TO_BE_FILLED_BY_TERRAFORM/${{ steps.terraform-output.outputs.app_public_ip }}/" ansible/inventory.ini
+          cat ansible/inventory.ini
+
+      - name: Deploy Application with Ansible
+        run: |
+          # Get ACR credentials
+          ACR_USERNAME=$(az acr credential show --name ${{ steps.terraform-output.outputs.acr_name }} --query username -o tsv)
+          ACR_PASSWORD=$(az acr credential show --name ${{ steps.terraform-output.outputs.acr_name }} --query passwords[0].value -o tsv)
+          
+          ansible-playbook -i ansible/inventory.ini ansible/deploy.yml \
+            --extra-vars "acr_login_server=${{ steps.terraform-output.outputs.acr_login_server }}" \
+            --extra-vars "acr_username=$ACR_USERNAME" \
+            --extra-vars "acr_password=$ACR_PASSWORD" \
+            --extra-vars "image_tag=${{ github.sha }}" \
+            --extra-vars "db_password=${{ secrets.DB_PASSWORD }}" \
+            --extra-vars "mysql_fqdn=todo-devops-mysql-$(terraform output -raw | grep mysql | cut -d'-' -f4).mysql.database.azure.com" \
+            --extra-vars "database_name=todo_devops_db"
+
+      - name: Application Health Check
+        run: |
+          sleep 30
+          curl -f "http://${{ steps.terraform-output.outputs.app_public_ip }}/health" || exit 1
+          echo "✅ Application is healthy and running!"
+
+      - name: Update README with Live URL
+        run: |
+          sed -i "s|Live Application URL:.*|Live Application URL: http://${{ steps.terraform-output.outputs.app_public_ip }}|" README.md
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add README.md
+          git commit -m "Update README with live application URL [skip ci]" || exit 0
+          git push
+
+      - name: Deployment Summary
+        run: |
+          echo "🎉 Deployment completed successfully!"
+          echo "📱 Application URL: http://${{ steps.terraform-output.outputs.app_public_ip }}"
+          echo "🚀 Image: ${{ steps.terraform-output.outputs.acr_login_server }}/todo-app:${{ github.sha }}"
+          echo "💾 Database: Azure MySQL Flexible Server"
+          echo "🔐 Bastion Host: ${{ steps.terraform-output.outputs.bastion_public_ip }}"
