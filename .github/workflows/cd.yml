@@ -2,19 +2,19 @@ name: CD Pipeline - Deploy to Production
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
     inputs:
       deploy_infrastructure:
-        description: 'Deploy infrastructure (will incur costs)'
+        description: "Deploy infrastructure (will incur costs)"
         required: false
-        default: 'false'
+        default: "false"
         type: boolean
 
 env:
-  AZURE_RESOURCE_GROUP: 'rg-todo-devops'
-  NODE_VERSION: '18'
-  TERRAFORM_VERSION: '1.6.0'
+  AZURE_RESOURCE_GROUP: "rg-todo-devops"
+  NODE_VERSION: "18"
+  TERRAFORM_VERSION: "1.6.0"
 
 jobs:
   deploy:
@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,13 +31,28 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
 
       - name: Run tests one more time
         run: npm test
+
+      # --- Security Scanning Steps ---
+      - name: Trivy scan Docker image
+        uses: aquasecurity/trivy-action@v0.14.0
+        with:
+          image-ref: todoacrud9eii5z.azurecr.io/todo-app:latest
+          format: table
+          exit-code: 1
+          severity: CRITICAL,HIGH
+
+      - name: tfsec scan Terraform
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          working-directory: terraform/azure
+      # --- End Security Scanning Steps ---
 
       - name: Azure Login
         uses: azure/login@v1
@@ -89,7 +104,7 @@ jobs:
       - name: Setup Python for Ansible
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install Ansible
         run: |
@@ -110,7 +125,7 @@ jobs:
           # Get ACR credentials
           ACR_USERNAME=$(az acr credential show --name ${{ steps.terraform-output.outputs.acr_name }} --query username -o tsv)
           ACR_PASSWORD=$(az acr credential show --name ${{ steps.terraform-output.outputs.acr_name }} --query passwords[0].value -o tsv)
-          
+
           ansible-playbook -i ansible/inventory.ini ansible/deploy.yml \
             --extra-vars "acr_login_server=${{ steps.terraform-output.outputs.acr_login_server }}" \
             --extra-vars "acr_username=$ACR_USERNAME" \
