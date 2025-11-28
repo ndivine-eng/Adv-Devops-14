@@ -1,23 +1,15 @@
-# main.tf
-
-# This resource creates a resource group to hold all the other resources.
-
-# We use a data source to reference the existing Container App Environment
-# to avoid the regional quota error from the previous attempt.
-
-# This resource defines the front-end container app.
-# Resource Group
+# Create Resource Group
 resource "azurerm_resource_group" "main" {
-  name     = var.resource_group_name
-  location = var.location
-
+  name     = "rg-todo-devops"
+  location = "centralus"
+  
   tags = {
-    Environment = var.environment
-    Project     = var.project_name
+    Environment = "production"
+    Project     = "todo-devops"
   }
 }
 
-# Random string for ACR name uniqueness
+# Random string for unique naming
 resource "random_string" "suffix" {
   length  = 8
   special = false
@@ -26,14 +18,18 @@ resource "random_string" "suffix" {
 
 # Virtual Network
 resource "azurerm_virtual_network" "main" {
-  name                = "${var.project_name}-vnet"
+  name                = "todo-devops-vnet"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
 
   tags = {
-    Environment = var.environment
-    Project     = var.project_name
+    Environment = "production"
+    Project     = "todo-devops"
+  }
+
+  lifecycle {
+    create_before_destroy = false
   }
 }
 
@@ -43,6 +39,8 @@ resource "azurerm_subnet" "public" {
   resource_group_name  = azurerm_resource_group.main.name
   virtual_network_name = azurerm_virtual_network.main.name
   address_prefixes     = ["10.0.1.0/24"]
+
+  depends_on = [azurerm_virtual_network.main]
 }
 
 # Private Subnet for Application VM
@@ -51,11 +49,13 @@ resource "azurerm_subnet" "private" {
   resource_group_name  = azurerm_resource_group.main.name
   virtual_network_name = azurerm_virtual_network.main.name
   address_prefixes     = ["10.0.2.0/24"]
+
+  depends_on = [azurerm_subnet.public]
 }
 
 # Network Security Group for Bastion
 resource "azurerm_network_security_group" "bastion" {
-  name                = "${var.project_name}-bastion-nsg"
+  name                = "todo-devops-bastion-nsg"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
 
@@ -72,14 +72,14 @@ resource "azurerm_network_security_group" "bastion" {
   }
 
   tags = {
-    Environment = var.environment
-    Project     = var.project_name
+    Environment = "production"
+    Project     = "todo-devops"
   }
 }
 
 # Network Security Group for Application VM
 resource "azurerm_network_security_group" "app" {
-  name                = "${var.project_name}-app-nsg"
+  name                = "todo-devops-app-nsg"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
 
@@ -120,42 +120,42 @@ resource "azurerm_network_security_group" "app" {
   }
 
   tags = {
-    Environment = var.environment
-    Project     = var.project_name
+    Environment = "production"
+    Project     = "todo-devops"
   }
 }
 
 # Public IP for Bastion
 resource "azurerm_public_ip" "bastion" {
-  name                = "${var.project_name}-bastion-pip"
+  name                = "todo-devops-bastion-pip"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   allocation_method   = "Static"
   sku                 = "Standard"
 
   tags = {
-    Environment = var.environment
-    Project     = var.project_name
+    Environment = "production"
+    Project     = "todo-devops"
   }
 }
 
 # Public IP for Application VM
 resource "azurerm_public_ip" "app" {
-  name                = "${var.project_name}-app-pip"
+  name                = "todo-devops-app-pip"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   allocation_method   = "Static"
   sku                 = "Standard"
 
   tags = {
-    Environment = var.environment
-    Project     = var.project_name
+    Environment = "production"
+    Project     = "todo-devops"
   }
 }
 
 # Network Interface for Bastion
 resource "azurerm_network_interface" "bastion" {
-  name                = "${var.project_name}-bastion-nic"
+  name                = "todo-devops-bastion-nic"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
 
@@ -167,14 +167,16 @@ resource "azurerm_network_interface" "bastion" {
   }
 
   tags = {
-    Environment = var.environment
-    Project     = var.project_name
+    Environment = "production"
+    Project     = "todo-devops"
   }
+
+  depends_on = [azurerm_subnet.public]
 }
 
 # Network Interface for Application VM
 resource "azurerm_network_interface" "app" {
-  name                = "${var.project_name}-app-nic"
+  name                = "todo-devops-app-nic"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
 
@@ -186,39 +188,50 @@ resource "azurerm_network_interface" "app" {
   }
 
   tags = {
-    Environment = var.environment
-    Project     = var.project_name
+    Environment = "production"
+    Project     = "todo-devops"
   }
+
+  depends_on = [azurerm_subnet.private]
 }
 
 # Associate NSG to Bastion NIC
 resource "azurerm_network_interface_security_group_association" "bastion" {
   network_interface_id      = azurerm_network_interface.bastion.id
   network_security_group_id = azurerm_network_security_group.bastion.id
+
+  depends_on = [
+    azurerm_network_interface.bastion,
+    azurerm_network_security_group.bastion
+  ]
 }
 
 # Associate NSG to App NIC
 resource "azurerm_network_interface_security_group_association" "app" {
   network_interface_id      = azurerm_network_interface.app.id
   network_security_group_id = azurerm_network_security_group.app.id
+
+  depends_on = [
+    azurerm_network_interface.app,
+    azurerm_network_security_group.app
+  ]
 }
 
 # Bastion Host VM
 resource "azurerm_linux_virtual_machine" "bastion" {
-  name                = "${var.project_name}-bastion"
+  name                = "todo-devops-bastion"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   size                = "Standard_D2s_v3"
-  admin_username      = var.admin_username
+  admin_username      = "erjok2020"
 
   disable_password_authentication = false
+  admin_password                  = "Erjok2020!"
 
   network_interface_ids = [
     azurerm_network_interface.bastion.id,
   ]
 
-  admin_password = var.admin_password
-
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
@@ -232,27 +245,28 @@ resource "azurerm_linux_virtual_machine" "bastion" {
   }
 
   tags = {
-    Environment = var.environment
-    Project     = var.project_name
+    Environment = "production"
+    Project     = "todo-devops"
   }
+
+  depends_on = [azurerm_network_interface.bastion]
 }
 
 # Application VM
 resource "azurerm_linux_virtual_machine" "app" {
-  name                = "${var.project_name}-app"
+  name                = "todo-devops-app"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   size                = "Standard_D2s_v3"
-  admin_username      = var.admin_username
+  admin_username      = "erjok2020"
 
   disable_password_authentication = false
+  admin_password                  = "Erjok2020!"
 
   network_interface_ids = [
     azurerm_network_interface.app.id,
   ]
 
-  admin_password = var.admin_password
-
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
@@ -266,59 +280,23 @@ resource "azurerm_linux_virtual_machine" "app" {
   }
 
   tags = {
-    Environment = var.environment
-    Project     = var.project_name
+    Environment = "production"
+    Project     = "todo-devops"
   }
+
+  depends_on = [azurerm_network_interface.app]
 }
 
-# Container Registry
-# resource "azurerm_container_registry" "main" {
-#   name                = "${replace(var.project_name, "-", "")}acr${random_string.suffix.result}"
-#   resource_group_name = azurerm_resource_group.main.name
-#   location            = azurerm_resource_group.main.location
-#   sku                 = "Basic"
-#   admin_enabled       = true
-#
-#   tags = {
-#     Environment = var.environment
-#     Project     = var.project_name
-#   }
-# }
-# MySQL Database
-# resource "azurerm_mysql_flexible_server" "main" {
-#   name                   = "${var.project_name}-mysql-${random_string.suffix.result}"
-#   resource_group_name    = azurerm_resource_group.main.name
-#   location              = azurerm_resource_group.main.location
-#   administrator_login    = "mysqladmin"
-#   administrator_password = var.db_password
-#   backup_retention_days  = 7
-#   sku_name              = "B_Standard_B1ms"
-#   version               = "8.0.21"
-#   
-#   storage {
-#     size_gb = 20
-#   }
-#
-#   tags = {
-#     Project     = var.project_name
-#     Environment = var.environment
-#   }
-# }
-#
-# # Database for the application
-# resource "azurerm_mysql_flexible_database" "app_db" {
-#   name                = "${var.project_name}_db"
-#   resource_group_name = azurerm_resource_group.main.name
-#   server_name         = azurerm_mysql_flexible_server.main.name
-#   charset             = "utf8mb4"
-#   collation          = "utf8mb4_unicode_ci"
-# }
-#
-# # Firewall rule to allow access from app subnet
-# resource "azurerm_mysql_flexible_server_firewall_rule" "app_access" {
-#   name                = "AllowAppSubnet"
-#   resource_group_name = azurerm_resource_group.main.name
-#   server_name         = azurerm_mysql_flexible_server.main.name
-#   start_ip_address    = "10.0.2.0"
-#   end_ip_address      = "10.0.2.255"
-# }
+# Azure Container Registry
+resource "azurerm_container_registry" "acr" {
+  name                = "todoacr${random_string.suffix.result}"
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  sku                 = "Basic"
+  admin_enabled       = true
+
+  tags = {
+    Environment = "production"
+    Project     = "todo-devops"
+  }
+}
