@@ -18,11 +18,11 @@ let nextId = 1;
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'healthy', 
+  res.json({
+    status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
   });
 });
 
@@ -34,7 +34,7 @@ app.get('/api/todos', (req, res) => {
 // Create new todo
 app.post('/api/todos', (req, res) => {
   const { title, description } = req.body;
-  
+
   if (!title) {
     return res.status(400).json({ error: 'Title is required' });
   }
@@ -44,7 +44,7 @@ app.post('/api/todos', (req, res) => {
     title,
     description: description || '',
     completed: false,
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
   };
 
   todos.push(todo);
@@ -53,7 +53,7 @@ app.post('/api/todos', (req, res) => {
 
 // Get single todo
 app.get('/api/todos/:id', (req, res) => {
-  const todo = todos.find(t => t.id === parseInt(req.params.id));
+  const todo = todos.find((t) => t.id === parseInt(req.params.id));
   if (!todo) {
     return res.status(404).json({ error: 'Todo not found' });
   }
@@ -62,13 +62,13 @@ app.get('/api/todos/:id', (req, res) => {
 
 // Update todo
 app.put('/api/todos/:id', (req, res) => {
-  const todo = todos.find(t => t.id === parseInt(req.params.id));
+  const todo = todos.find((t) => t.id === parseInt(req.params.id));
   if (!todo) {
     return res.status(404).json({ error: 'Todo not found' });
   }
 
   const { title, description, completed } = req.body;
-  
+
   if (title !== undefined) todo.title = title;
   if (description !== undefined) todo.description = description;
   if (completed !== undefined) todo.completed = completed;
@@ -79,7 +79,7 @@ app.put('/api/todos/:id', (req, res) => {
 
 // Delete todo
 app.delete('/api/todos/:id', (req, res) => {
-  const index = todos.findIndex(t => t.id === parseInt(req.params.id));
+  const index = todos.findIndex((t) => t.id === parseInt(req.params.id));
   if (index === -1) {
     return res.status(404).json({ error: 'Todo not found' });
   }
