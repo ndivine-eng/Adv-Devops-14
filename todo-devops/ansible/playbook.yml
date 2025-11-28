@@ -1,0 +1,137 @@
+---
+- name: Configure Application Server
+  hosts: app_servers
+  become: yes
+  vars:
+    acr_name: "todoacrud9eii5z"
+    acr_login_server: "todoacrud9eii5z.azurecr.io"
+    app_image: "todoacrud9eii5z.azurecr.io/todo-app:latest"
+    db_host: "todo-devops-db-tiadp0.postgres.database.azure.com"
+    db_name: "tododb"
+    db_user: "dbadmin"
+
+    # Secrets should NOT be hardcoded. Read them from environment or vault.
+    acr_password: "{{ lookup('env', 'ACR_PASSWORD') }}"
+    db_password: "{{ lookup('env', 'DB_PASSWORD') }}"
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - python3-pip
+        state: present
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+
+    - name: Install Docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+        update_cache: yes
+
+    - name: Install Docker Compose V2
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-linux-x86_64"
+        dest: /usr/local/bin/docker-compose
+        mode: "0755"
+
+    - name: Start and enable Docker service
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add user to docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    - name: Install Docker Python library
+      pip:
+        name: docker
+        state: present
+
+    - name: Create app directory
+      file:
+        path: /opt/todo-app
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0755"
+
+    - name: Create docker-compose.yml
+      copy:
+        content: |
+          version: '3.8'
+          services:
+            app:
+              image: {{ app_image }}
+              container_name: todo-app
+              restart: unless-stopped
+              ports:
+                - "3000:3000"
+              environment:
+                - NODE_ENV=production
+                - DATABASE_HOST={{ db_host }}
+                - DATABASE_NAME={{ db_name }}
+                - DATABASE_USER={{ db_user }}
+                - DATABASE_PASSWORD={{ db_password }}
+              healthcheck:
+                test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+                interval: 30s
+                timeout: 3s
+                retries: 3
+                start_period: 40s
+        dest: /opt/todo-app/docker-compose.yml
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0644"
+
+    - name: Login to Azure Container Registry
+      docker_login:
+        registry_url: "{{ acr_login_server }}"
+        username: "{{ acr_name }}"
+        password: "{{ acr_password }}"
+        reauthorize: yes
+
+    - name: Pull latest Docker image
+      docker_image:
+        name: "{{ app_image }}"
+        source: pull
+        force_source: yes
+
+    - name: Stop existing container if running
+      docker_container:
+        name: todo-app
+        state: absent
+      ignore_errors: yes
+
+    - name: Deploy application with Docker Compose V2
+      shell: |
+        cd /opt/todo-app
+        docker-compose pull
+        docker-compose up -d
+      args:
+        executable: /bin/bash
