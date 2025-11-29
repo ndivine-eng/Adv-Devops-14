@@ -2,20 +2,17 @@
 - name: Configure Application Server
   hosts: app_servers
   become: yes
+
   vars:
     acr_name: "todoacrud9eii5z"
     acr_login_server: "todoacrud9eii5z.azurecr.io"
     app_image: "todoacrud9eii5z.azurecr.io/todo-app:latest"
+
     db_host: "todo-devops-db-tiadp0.postgres.database.azure.com"
     db_name: "tododb"
     db_user: "dbadmin"
 
-<<<<<<< HEAD
-    # Secrets should NOT be hardcoded. Read them from environment or vault.
-=======
-    # These should NOT be real secrets in Git.
-    # You can pass real values at runtime via --extra-vars or use Ansible Vault.
->>>>>>> 9ce98d0 (Use env-based secrets in Ansible playbook)
+    # 🔐 Secrets come from environment variables (or Ansible Vault), not hardcoded
     acr_password: "{{ lookup('env', 'ACR_PASSWORD') }}"
     db_password: "{{ lookup('env', 'DB_PASSWORD') }}"
 
