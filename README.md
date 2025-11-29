@@ -1,51 +1,80 @@
 # 🚀 Haraka App
 
-> **Plan fast, act faster with Haraka.**
+> Plan fast, act faster with Haraka — v1.0 (Completed)
 
 ---
 
-## 🧩 **Project Overview**
-**Haraka App** is a personal task management application that helps university students stay organized and productive.  
-It provides a clear, intuitive interface to plan, prioritize, and track daily activities — ensuring that every task gets done efficiently and on time.
+## Status
+
+- ✅ Project completed: core features implemented and validated.
+- 📦 Release: v1.0 — Stable initial release.
+- 🚀 Deployment: Production deployment completed and monitored.
 
 ---
 
-## 🧠 **Problem Statement**
-Many students struggle to stay organized and productive due to poor task planning and lack of structure in managing their daily activities.  
-This often leads to confusion, missed deadlines, and reduced focus.  
+## 🧩 Project Overview
 
-**Haraka App** addresses this problem by providing a simple and intuitive platform that allows users to plan, prioritize, and track their tasks effectively helping them stay focused and improve productivity.
+Haraka App is a personal task management application for university students. The app provides an intuitive interface to plan, prioritize, and track tasks. The initial scope (task CRUD, status tracking, deadline highlighting, authentication) is fully implemented, tested, and deployed.
 
 ---
 
-## 🎯 **Target Users**
-🎓 **University Students**  individuals managing multiple academic, personal, and extracurricular tasks who need a reliable tool to stay on track.
+## ✅ What's Completed
+
+- 📝 Task Management — create, edit, delete tasks
+- 📊 Task Status Tracking — to-do → in progress → completed
+- ⏰ Deadline Highlighting — visual indicators for upcoming/overdue tasks
+- 🔐 User Authentication — secure sign-up / sign-in with JWT sessions
+- 🧪 Tests — unit and integration tests for critical flows
+- ⚙️ CI/CD — automated builds and deployments (GitHub Actions)
+- ☁️ Deployment — production environment configured and running
+- 🧑‍💻 Documentation — updated README and usage notes
 
 ---
 
-## ⚙️ **Core Functionalities**
+## ⚙️ Quick Start (local)
 
-| Feature | Description |
-|----------|--------------|
-| 📝 **Task Management** | Add, edit, and delete tasks easily. |
-| 📊 **Task Status Tracking** | Monitor task progress from "To-Do" to "Completed." |
-| ⏰ **Deadline Highlighting** | Stay alert with visual deadline indicators. |
-| 🔐 **User Authentication** | Secure login and personalized task management. |
+1. git clone <repo-url>
+2. cd repo-root
+3. Frontend:
+
+- cd frontend
+- npm install
+- npm run dev (or npm run build && npm run start)
+
+4. Backend:
+
+- cd backend
+- npm install
+- create .env with MONGODB_URI, JWT_SECRET, PORT
+- npm run start
+
+5. Open the frontend URL shown in the terminal.
 
 ---
 
-## 💻 **Technology Stack**
+## 🧾 Testing & CI
 
-| Layer | Technologies |
-|--------|---------------|
-| 🎨 **Front-end** | React, TypeScript |
-| 🧠 **Back-end** | MongoDB |
+- Run tests: npm test (in each package where tests exist)
+- CI configured to run tests and deploy on main branch.
 
-## 👥 **Group Members**
+---
 
-| Name | Role |
-|------|------|
-| 🧑‍💼 **Divine Nubuhoro** | Team Lead, Frontend Developer |
-| 👩‍💻 **Joyce Moses Brown** | Backend Developer |
-| 🧑‍🔧 **Mugisha Gasheja** | DevOps Engineer |
-| 🧑‍🔧 **Erjok Mach** | Frontend Developer |
+## 👥 Group Members
+
+| Name                 | Role                          |
+| -------------------- | ----------------------------- |
+| 🧑‍💼 Divine Nubuhoro   | Team Lead, Frontend Developer |
+| 👩‍💻 Joyce Moses Brown | Backend Developer             |
+| 🧑‍🔧 Mugisha Gasheja   | DevOps Engineer               |
+| 🧑‍🔧 Erjok Mach        | Frontend Developer            |
+
+---
+
+## Contributing
+
+- Report issues or open PRs on the main repository.
+- Follow the existing code style and include tests for new functionality.
+
+---
+
+Thank you — the Haraka v1.0 release is complete and ready for users.
