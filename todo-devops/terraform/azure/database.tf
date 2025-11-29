@@ -1,11 +1,20 @@
 # Azure PostgreSQL Flexible Server
+
+# Use a variable for the DB admin password instead of hardcoding it
+variable "db_admin_password" {
+  type      = string
+  sensitive = true
+  description = "Admin password for the Todo DevOps PostgreSQL database"
+}
+
 resource "azurerm_postgresql_flexible_server" "main" {
-  name                   = "todo-devops-db-${random_string.unique.result}"
-  resource_group_name    = azurerm_resource_group.main.name
-  location               = azurerm_resource_group.main.location
-  version                = "13"
+  name                = "todo-devops-db-${random_string.unique.result}"
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  version             = "13"
+
   administrator_login    = "dbadmin"
-  administrator_password = "REDACTED_DB_PASSWORD"
+  administrator_password = var.db_admin_password
   zone                   = "1"
 
   storage_mb = 32768
@@ -43,3 +52,4 @@ resource "azurerm_postgresql_flexible_server_firewall_rule" "azure_services" {
   start_ip_address = "0.0.0.0"
   end_ip_address   = "0.0.0.0"
 }
+
