@@ -10,20 +10,13 @@ sudo apt-get install -y docker.io
 sudo systemctl enable --now docker
 sudo usermod -aG docker $USER
 
-# Login to Azure Container Registry using environment variables
-# These should be set in the environment before running this script:
-#   ACR_LOGIN_SERVER, ACR_USERNAME, ACR_PASSWORD
-echo "$ACR_PASSWORD" | docker login "$ACR_LOGIN_SERVER" -u "$ACR_USERNAME" --password-stdin
-
-docker pull "$ACR_LOGIN_SERVER/todo-app:latest"
-
-# Database connection details should also come from environment variables:
-#   DATABASE_HOST, DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD
+echo "REDACTED_ACR_PASSWORD" | docker login todoacrud9eii5z.azurecr.io -u todoacrud9eii5z --password-stdin
+docker pull todoacrud9eii5z.azurecr.io/todo-app:latest
 docker run -d --name todo-app -p 3000:3000 \
   -e NODE_ENV=production \
-  -e DATABASE_HOST="$DATABASE_HOST" \
-  -e DATABASE_NAME="$DATABASE_NAME" \
-  -e DATABASE_USER="$DATABASE_USER" \
-  -e DATABASE_PASSWORD="$DATABASE_PASSWORD" \
-  "$ACR_LOGIN_SERVER/todo-app:latest"
+  -e DATABASE_HOST=todo-devops-db-tiadp0.postgres.database.azure.com \
+  -e DATABASE_NAME=tododb \
+  -e DATABASE_USER=dbadmin \
+  -e DATABASE_PASSWORD=REDACTED_DB_PASSWORD \
+  todoacrud9eii5z.azurecr.io/todo-app:latest
 ENDSSH
