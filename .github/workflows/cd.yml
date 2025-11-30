@@ -47,7 +47,7 @@ jobs:
 
       # --- Security Scanning Steps ---
       - name: Trivy scan filesystem (app)
-        uses: aquasecurity/trivy-action@v0.14.0
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: fs
           scan-ref: ${{ env.APP_WORKING_DIR }}
