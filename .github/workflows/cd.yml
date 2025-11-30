@@ -47,7 +47,7 @@ jobs:
 
       # --- Security Scanning Steps ---
       - name: Trivy scan filesystem (app)
-        uses: aquasecurity/trivy-action@v0.33.1
+        uses: aquasecurity/trivy-action@v0.14.0
         with:
           scan-type: fs
           scan-ref: ${{ env.APP_WORKING_DIR }}
@@ -58,7 +58,7 @@ jobs:
       - name: tfsec scan Terraform
         uses: aquasecurity/tfsec-action@v1.0.0
         with:
-          working_directory: ${{ env.TF_WORKING_DIR }}
+          working-directory: ${{ env.TF_WORKING_DIR }}
       # --- End Security Scanning Steps ---
 
       # ---- Azure & Terraform ----
