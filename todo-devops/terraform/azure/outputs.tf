@@ -40,7 +40,6 @@ output "acr_admin_password" {
   sensitive   = true
 }
 
-# Database outputs
 output "database_host" {
   description = "PostgreSQL server hostname"
   value       = azurerm_postgresql_flexible_server.main.fqdn
