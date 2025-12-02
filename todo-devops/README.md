@@ -1,4 +1,3 @@
-
 # 🚀 Todo DevOps - Complete CI/CD Pipeline
 
 A production-ready Node.js Todo application demonstrating enterprise-grade DevOps practices with full Git-to-Production automation on Microsoft Azure.
@@ -115,6 +114,7 @@ This project demonstrates a complete DevOps workflow from code commit to product
 ## ✨ Features
 
 ### Application Features
+
 - ✅ RESTful API for Todo management (CRUD operations)
 - ✅ Health monitoring endpoint
 - ✅ JSON request/response format
@@ -122,6 +122,7 @@ This project demonstrates a complete DevOps workflow from code commit to product
 - ✅ CORS and security headers (Helmet)
 
 ### DevOps Features
+
 - ✅ Infrastructure as Code (Terraform)
 - ✅ Configuration Management (Ansible)
 - ✅ Continuous Integration (GitHub Actions)
@@ -136,23 +137,27 @@ This project demonstrates a complete DevOps workflow from code commit to product
 ## 🛠️ Technology Stack
 
 ### Application
+
 - **Runtime:** Node.js 18 LTS
 - **Framework:** Express.js 4.x
 - **Testing:** Jest + Supertest
 - **Linting:** ESLint
 
 ### Infrastructure
+
 - **Cloud Provider:** Microsoft Azure
 - **IaC:** Terraform 1.5+
 - **Configuration Management:** Ansible
 - **Containerization:** Docker
 
 ### CI/CD
+
 - **CI/CD Platform:** GitHub Actions
 - **Security Scanning:** Trivy (containers), tfsec (infrastructure)
 - **Version Control:** Git/GitHub
 
 ### Azure Resources (15+)
+
 - Resource Group
 - Virtual Network + 2 Subnets
 - 2 Network Security Groups
@@ -244,16 +249,16 @@ terraform destroy
 
 ### Infrastructure Resources
 
-| Resource Type | Name | Purpose |
-|--------------|------|---------|
-| Resource Group | `rg-todo-devops` | Container for all resources |
-| Virtual Network | `todo-devops-vnet` | Network isolation |
-| Public Subnet | `public-subnet` | Bastion host |
-| Private Subnet | `private-subnet` | Application server |
-| Bastion VM | `todo-devops-bastion` | SSH jump server |
-| App VM | `todo-devops-app` | Application host |
-| NSG (Bastion) | `todo-devops-bastion-nsg` | Firewall rules for bastion |
-| NSG (App) | `todo-devops-app-nsg` | Firewall rules for app |
+| Resource Type   | Name                      | Purpose                     |
+| --------------- | ------------------------- | --------------------------- |
+| Resource Group  | `rg-todo-devops`          | Container for all resources |
+| Virtual Network | `todo-devops-vnet`        | Network isolation           |
+| Public Subnet   | `public-subnet`           | Bastion host                |
+| Private Subnet  | `private-subnet`          | Application server          |
+| Bastion VM      | `todo-devops-bastion`     | SSH jump server             |
+| App VM          | `todo-devops-app`         | Application host            |
+| NSG (Bastion)   | `todo-devops-bastion-nsg` | Firewall rules for bastion  |
+| NSG (App)       | `todo-devops-app-nsg`     | Firewall rules for app      |
 
 ### Terraform Outputs
 
@@ -309,10 +314,12 @@ Trigger: Push to main branch
 We have **3 comprehensive integration tests** covering all critical endpoints:
 
 1. **Health Endpoint Test**
+
    - Verifies server is running
    - Checks health endpoint returns 200 OK
 
 2. **GET /api/todos Test**
+
    - Verifies API endpoint accessibility
    - Checks initial state (empty array)
 
@@ -355,18 +362,21 @@ Time:        2.5s
 ### Security Measures
 
 1. **Network Security**
+
    - Network segmentation (public/private subnets)
    - Network Security Groups (NSGs) with strict rules
    - Bastion host for controlled SSH access
    - No direct internet access to application subnet
 
 2. **Container Security**
+
    - Trivy vulnerability scanning in CI
    - Multi-stage Docker builds
    - Non-root user in containers
    - Minimal base images
 
 3. **Infrastructure Security**
+
    - tfsec scanning for Terraform code
    - Secure credential management
    - Least privilege access principles
@@ -428,14 +438,19 @@ todo-devops/
 
 ---
 
+## 🎥 Demo Video
+
+Watch a walkthrough of the Todo DevOps project:  
+[![Demo Video](https://drive.google.com/file/d/1q8M5XWpYCMyyBc0qjuxTo_W45soGDR_T/view?usp=drive_link)
+
 ## 👥 Team Members
 
-| Name | Role | Responsibilities | Contact |
-|------|------|-----------------|---------|
-| **Divine Nubuhoro** | Team Lead & Frontend Developer | Project management, UI/UX design, frontend integration | [GitHub](https://github.com/divine) |
-| **Joyce Moses Brown** | Backend Developer | API development, database design, business logic | [GitHub](https://github.com/joyce) |
-| **Mugisha Gasheja** | DevOps Engineer | Infrastructure automation, CI/CD pipelines, monitoring | [GitHub](https://github.com/mugisha) |
-| **Erjok Mach** | Frontend Developer | React components, state management, API integration | [GitHub](https://github.com/erjok) |
+| Name                  | Role                           | Responsibilities                                       | Contact                              |
+| --------------------- | ------------------------------ | ------------------------------------------------------ | ------------------------------------ |
+| **Divine Nubuhoro**   | Team Lead & Frontend Developer | Project management, UI/UX design, frontend integration | [GitHub](https://github.com/divine)  |
+| **Joyce Moses Brown** | Backend Developer              | API development, database design, business logic       | [GitHub](https://github.com/joyce)   |
+| **Mugisha Gasheja**   | DevOps Engineer                | Infrastructure automation, CI/CD pipelines, monitoring | [GitHub](https://github.com/mugisha) |
+| **Erjok Mach**        | Frontend Developer             | React components, state management, API integration    | [GitHub](https://github.com/erjok)   |
 
 ### Contributions
 
@@ -603,6 +618,7 @@ curl http://74.249.255.176:3000/health
 ```
 
 Response:
+
 ```json
 {
   "status": "healthy",
@@ -683,6 +699,7 @@ Contributions are welcome! Please follow these steps:
 5. Open a Pull Request
 
 Please ensure:
+
 - All tests pass (`npm test`)
 - Code follows ESLint rules (`npm run lint`)
 - Documentation is updated
@@ -717,4 +734,4 @@ For questions, issues, or support:
 
 **Made with ❤️ by the Todo DevOps Team**
 
-*Last Updated: November 27, 2025*
+_Last Updated: November 27, 2025_
