@@ -440,8 +440,12 @@ todo-devops/
 
 ## 🎥 Demo Video
 
-Watch a walkthrough of the Todo DevOps project:  
-[![Demo Video](https://drive.google.com/file/d/1q8M5XWpYCMyyBc0qjuxTo_W45soGDR_T/view?usp=drive_link)
+Watch a walkthrough of the Todo DevOps project:
+
+[Demo Video (Google Drive)](https://drive.google.com/file/d/1q8M5XWpYCMyyBc0qjuxTo_W45soGDR_T/view?usp=sharing)
+
+````
+// filepath: /Users/Lenovo/Adv-Devops-14/todo-devops/README.md
 
 ## 👥 Team Members
 
@@ -473,7 +477,7 @@ az login
 
 # Create resource group (if not using Terraform)
 az group create --name rg-todo-devops --location centralus
-```
+````
 
 ### Step 2: Deploy Infrastructure
 
